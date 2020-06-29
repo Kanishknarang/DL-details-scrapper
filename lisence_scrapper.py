@@ -94,7 +94,7 @@ class DlScrapper:
 
                 action = form.attrib['action'].split(';')[0]
 
-                #extracting viewstate, it is used un subequent requests data 
+                #extracting viewstate, it is used in subequent requests data 
                 viewstate = form.inputs['javax.faces.ViewState'].value
             
                 img_src = htm.cssselect('img')[1].get('src')
@@ -106,7 +106,7 @@ class DlScrapper:
 
                 #four post requests need to be made to get the data
 
-                #data for request 1
+                #data for first request 
                 data1 = {'javax.faces.partial.ajax': 'true',
                     'javax.faces.source' : 'form_rcdl:tf_dlNO',
                     'javax.faces.partial.execute': 'form_rcdl:tf_dlNO',
@@ -233,6 +233,11 @@ class DlScrapper:
 
                 
             except Exception as e:
+               
+                if e.__str__() == 'list index out of range' or e.__str__() == 'substring not found':
+                    print('please enter correct dl number and date of birth')
+                    break
+
                 print(e)
 
 if __name__ == '__main__':
@@ -252,7 +257,10 @@ if __name__ == '__main__':
     # Execute the parse_args() method
     args = parser.parse_args()
 
+    #creating DlScrapper object
     dlscrapper = DlScrapper(args.dlnum, args.dob)
+
+    #calling scrape data function
     data = dlscrapper.scrape_data()
     print(data)
     
