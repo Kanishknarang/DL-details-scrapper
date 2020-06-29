@@ -80,148 +80,153 @@ class DlScrapper:
 
         #this loop runs until the data is scraped 
         while (True):
+
+            try:
             
-            print('collecting data...')
-            #making request to url
-            response = self.session.get(self.url, headers = self.my_header)
+                print('collecting data...')
+                #making request to url
+                response = self.session.get(self.url, headers = self.my_header)
 
-            htm = html.fromstring(response.content)
+                htm = html.fromstring(response.content)
 
-            #ectracting form element using xpath
-            form = htm.xpath('/html/body/form')[0]
+                #ectracting form element using xpath
+                form = htm.xpath('/html/body/form')[0]
 
-            action = form.attrib['action'].split(';')[0]
+                action = form.attrib['action'].split(';')[0]
 
-            #extracting viewstate, it is used un subequent requests data 
-            viewstate = form.inputs['javax.faces.ViewState'].value
-        
-            img_src = htm.cssselect('img')[1].get('src')
-        
-            text = self.get_captcha(img_src)
-            print('Trying captcha: '+text)
-
-            capcha = text 
-
-            #four post requests need to be made to get the data
-
-            #data for request 1
-            data1 = {'javax.faces.partial.ajax': 'true',
-                'javax.faces.source' : 'form_rcdl:tf_dlNO',
-                'javax.faces.partial.execute': 'form_rcdl:tf_dlNO',
-                'javax.faces.partial.render': 'form_rcdl:tf_dlNO',
-                'javax.faces.behavior.event': 'valueChange',
-                'javax.faces.partial.event': 'change',
-                'form_rcdl': 'form_rcdl',
-                'form_rcdl:tf_dlNO' : self.dlnum,
-                'form_rcdl:tf_dob_input': None, 
-                'form_rcdl:j_idt32:CaptchaID': None,
-                'javax.faces.ViewState': viewstate}
-
-            result1 = self.session.post('https://parivahan.gov.in'+action, data1, self.my_header)
-
-            #extracting viewstate
-            viewstate = result1.text[result1.text.rindex('CDATA')+6 : len(result1.text)-41]
+                #extracting viewstate, it is used un subequent requests data 
+                viewstate = form.inputs['javax.faces.ViewState'].value
             
-            #data to be passed with second request
-            data2 = {'javax.faces.partial.ajax': 'true',
-                'javax.faces.source': 'form_rcdl:tf_dob',
-                'javax.faces.partial.execute': 'form_rcdl:tf_dob',
-                'javax.faces.partial.render': 'form_rcdl:tf_dob',
-                'javax.faces.behavior.event': 'valueChange',
-                'javax.faces.partial.event': 'change',
-                'form_rcdl:tf_dob_input': self.dob,
-                'javax.faces.ViewState': viewstate}
-
-            result2 = self.session.post('https://parivahan.gov.in' + action, data2, self.my_header)
-
-            #extracting viewstate
-            viewstate = result2.text[result2.text.rindex('CDATA')+6 : len(result2.text)-41]
-         
-            #data to be passed in third request
-            data3 = {'form_rcdl': 'form_rcdl',
-                'form_rcdl:tf_dlNO': self.dlnum,
-                'form_rcdl:tf_dob_input': self.dob,
-                'form_rcdl:j_idt32:CaptchaID': capcha,
-                'javax.faces.ViewState': viewstate,
-                'javax.faces.source': 'form_rcdl:j_idt32:CaptchaID',
-                'javax.faces.partial.event': 'blur',
-                'javax.faces.partial.execute': 'form_rcdl:j_idt32:CaptchaID',
-                'javax.faces.partial.render': 'form_rcdl:j_idt32:CaptchaID',
-                'CLIENT_BEHAVIOR_RENDERING_MODE': 'OBSTRUSIVE',
-                'javax.faces.behavior.event': 'blur',
-                'javax.faces.partial.ajax': 'true'}
-
-            result4 = self.session.post('https://parivahan.gov.in' + action, data3, self.my_header)
-
-            #data to be passed in forth request
-            data4 = {'javax.faces.partial.ajax': 'true',
-                'javax.faces.source': 'form_rcdl:j_idt43',
-                'javax.faces.partial.execute': '@all',
-                'javax.faces.partial.render': 'form_rcdl:pnl_show form_rcdl:pg_show form_rcdl:rcdl_pnl',
-                'form_rcdl:j_idt43' : 'form_rcdl:j_idt43',
-                'form_rcdl': 'form_rcdl',
-                'form_rcdl:tf_dlNO': self.dlnum,
-                'form_rcdl:tf_dob_input': self.dob,
-                'form_rcdl:j_idt32:CaptchaID': capcha,
-                'javax.faces.ViewState': viewstate}
-
-            result4 = self.session.post('https://parivahan.gov.in' + action, data4, self.my_header)
+                img_src = htm.cssselect('img')[1].get('src')
             
-            #cheching if the captcha is valid
-            if '"validationFailed":true' not in result4.text :
+                text = self.get_captcha(img_src)
+                print('Trying captcha: '+text)
+
+                capcha = text 
+
+                #four post requests need to be made to get the data
+
+                #data for request 1
+                data1 = {'javax.faces.partial.ajax': 'true',
+                    'javax.faces.source' : 'form_rcdl:tf_dlNO',
+                    'javax.faces.partial.execute': 'form_rcdl:tf_dlNO',
+                    'javax.faces.partial.render': 'form_rcdl:tf_dlNO',
+                    'javax.faces.behavior.event': 'valueChange',
+                    'javax.faces.partial.event': 'change',
+                    'form_rcdl': 'form_rcdl',
+                    'form_rcdl:tf_dlNO' : self.dlnum,
+                    'form_rcdl:tf_dob_input': None, 
+                    'form_rcdl:j_idt32:CaptchaID': None,
+                    'javax.faces.ViewState': viewstate}
+
+                result1 = self.session.post('https://parivahan.gov.in'+action, data1, self.my_header)
+
+                #extracting viewstate
+                viewstate = result1.text[result1.text.rindex('CDATA')+6 : len(result1.text)-41]
                 
-                xhtml = html.fromstring(result4.content)
+                #data to be passed with second request
+                data2 = {'javax.faces.partial.ajax': 'true',
+                    'javax.faces.source': 'form_rcdl:tf_dob',
+                    'javax.faces.partial.execute': 'form_rcdl:tf_dob',
+                    'javax.faces.partial.render': 'form_rcdl:tf_dob',
+                    'javax.faces.behavior.event': 'valueChange',
+                    'javax.faces.partial.event': 'change',
+                    'form_rcdl:tf_dob_input': self.dob,
+                    'javax.faces.ViewState': viewstate}
 
-                #extracting required data  
-                current_status = xhtml.cssselect('td')[1].text_content()
-                holders_name = xhtml.cssselect('td')[3].text_content()
-                date_of_issue = xhtml.cssselect('td')[5].text_content()
-                last_transation_at = xhtml.cssselect('td')[7].text_content()
-                validity_details_non_transport_from = xhtml.cssselect('td')[11].text_content()[6:]
-                validity_details_non_transport_to = xhtml.cssselect('td')[12].text_content()[4:]
-                validity_details_transport_from = xhtml.cssselect('td')[14].text_content()[6:]
-                validity_details_transport_to = xhtml.cssselect('td')[15].text_content()[4:]
-                hazardous_valid_till = xhtml.cssselect('td')[17].text_content()
-                hill_valid_till = xhtml.cssselect('td')[19].text_content()
+                result2 = self.session.post('https://parivahan.gov.in' + action, data2, self.my_header)
+
+                #extracting viewstate
+                viewstate = result2.text[result2.text.rindex('CDATA')+6 : len(result2.text)-41]
+            
+                #data to be passed in third request
+                data3 = {'form_rcdl': 'form_rcdl',
+                    'form_rcdl:tf_dlNO': self.dlnum,
+                    'form_rcdl:tf_dob_input': self.dob,
+                    'form_rcdl:j_idt32:CaptchaID': capcha,
+                    'javax.faces.ViewState': viewstate,
+                    'javax.faces.source': 'form_rcdl:j_idt32:CaptchaID',
+                    'javax.faces.partial.event': 'blur',
+                    'javax.faces.partial.execute': 'form_rcdl:j_idt32:CaptchaID',
+                    'javax.faces.partial.render': 'form_rcdl:j_idt32:CaptchaID',
+                    'CLIENT_BEHAVIOR_RENDERING_MODE': 'OBSTRUSIVE',
+                    'javax.faces.behavior.event': 'blur',
+                    'javax.faces.partial.ajax': 'true'}
+
+                result4 = self.session.post('https://parivahan.gov.in' + action, data3, self.my_header)
+
+                #data to be passed in forth request
+                data4 = {'javax.faces.partial.ajax': 'true',
+                    'javax.faces.source': 'form_rcdl:j_idt43',
+                    'javax.faces.partial.execute': '@all',
+                    'javax.faces.partial.render': 'form_rcdl:pnl_show form_rcdl:pg_show form_rcdl:rcdl_pnl',
+                    'form_rcdl:j_idt43' : 'form_rcdl:j_idt43',
+                    'form_rcdl': 'form_rcdl',
+                    'form_rcdl:tf_dlNO': self.dlnum,
+                    'form_rcdl:tf_dob_input': self.dob,
+                    'form_rcdl:j_idt32:CaptchaID': capcha,
+                    'javax.faces.ViewState': viewstate}
+
+                result4 = self.session.post('https://parivahan.gov.in' + action, data4, self.my_header)
                 
-                class_of_vehicle_details_list = []
-                temp_dict = {}
-                c = 0
-                for i in xhtml.cssselect('td')[20:]:
-                    if c==0:
-                        temp_dict['cov_category'] = i.text_content()
-                    elif c==1:
-                        temp_dict['class_of_vehicle'] = i.text_content()
-                    else:
-                        temp_dict['cov_issue_date'] = i.text_content()
+                #cheching if the captcha is valid
+                if '"validationFailed":true' not in result4.text :
                     
-                    c=c+1
-                    c= c% 3
-                    if c==0:
-                        class_of_vehicle_details_list.append(temp_dict)
-                        temp_dict = {}
+                    xhtml = html.fromstring(result4.content)
 
-                #this dictionary holds the final result
-                data = {'Current_Status' : current_status,
-                'holders_name' : holders_name,
-                'date_of_issue' : date_of_issue,
-                'last_transaction_at' : last_transation_at,
+                    #extracting required data  
+                    current_status = xhtml.cssselect('td')[1].text_content()
+                    holders_name = xhtml.cssselect('td')[3].text_content()
+                    date_of_issue = xhtml.cssselect('td')[5].text_content()
+                    last_transation_at = xhtml.cssselect('td')[7].text_content()
+                    validity_details_non_transport_from = xhtml.cssselect('td')[11].text_content()[6:]
+                    validity_details_non_transport_to = xhtml.cssselect('td')[12].text_content()[4:]
+                    validity_details_transport_from = xhtml.cssselect('td')[14].text_content()[6:]
+                    validity_details_transport_to = xhtml.cssselect('td')[15].text_content()[4:]
+                    hazardous_valid_till = xhtml.cssselect('td')[17].text_content()
+                    hill_valid_till = xhtml.cssselect('td')[19].text_content()
+                    
+                    class_of_vehicle_details_list = []
+                    temp_dict = {}
+                    c = 0
+                    for i in xhtml.cssselect('td')[20:]:
+                        if c==0:
+                            temp_dict['cov_category'] = i.text_content()
+                        elif c==1:
+                            temp_dict['class_of_vehicle'] = i.text_content()
+                        else:
+                            temp_dict['cov_issue_date'] = i.text_content()
+                        
+                        c=c+1
+                        c= c% 3
+                        if c==0:
+                            class_of_vehicle_details_list.append(temp_dict)
+                            temp_dict = {}
 
-                'driving_licence_validity_details' : {'non_transport':{'from' : validity_details_non_transport_from, 'to' : validity_details_non_transport_to },
-                                                    'transport':{'from' : validity_details_transport_from, 'to' : validity_details_transport_to },
-                                                    'hazardous_valid_till': hazardous_valid_till,
-                                                     'hill_valid_till' : hill_valid_till },
-                'class_of_vehicle_details': class_of_vehicle_details_list
+                    #this dictionary holds the final result
+                    data = {'Current_Status' : current_status,
+                    'holders_name' : holders_name,
+                    'date_of_issue' : date_of_issue,
+                    'last_transaction_at' : last_transation_at,
 
-                }
-                return json.dumps(data, indent = 4)
-            
-            else:
-                print('Captcha failed, retrying.....')
+                    'driving_licence_validity_details' : {'non_transport':{'from' : validity_details_non_transport_from, 'to' : validity_details_non_transport_to },
+                                                        'transport':{'from' : validity_details_transport_from, 'to' : validity_details_transport_to },
+                                                        'hazardous_valid_till': hazardous_valid_till,
+                                                        'hill_valid_till' : hill_valid_till },
+                    'class_of_vehicle_details': class_of_vehicle_details_list
 
-            #waiting between requests
-            time.sleep(2)
+                    }
+                    return json.dumps(data, indent = 4)
+                
+                else:
+                    print('Captcha failed, retrying.....')
 
+                #waiting between requests
+                time.sleep(2)
+
+                
+            except Exception as e:
+                print(e)
 
 if __name__ == '__main__':
 
