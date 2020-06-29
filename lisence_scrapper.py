@@ -2,7 +2,6 @@
 import argparse
 import requests
 import random
-from bs4 import BeautifulSoup
 from lxml import etree, html
 from io import BytesIO
 import lxml.html
@@ -235,7 +234,7 @@ class DlScrapper:
             except Exception as e:
                
                 if e.__str__() == 'list index out of range' or e.__str__() == 'substring not found':
-                    print('please enter correct dl number and date of birth')
+                    print('Some error occuered, please check dl number and date of birth')
                     break
 
                 print(e)
