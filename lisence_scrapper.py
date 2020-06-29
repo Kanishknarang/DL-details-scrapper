@@ -119,6 +119,7 @@ class DlScrapper:
                     'form_rcdl:j_idt32:CaptchaID': None,
                     'javax.faces.ViewState': viewstate}
 
+                #making the first request
                 result1 = self.session.post('https://parivahan.gov.in'+action, data1, self.my_header)
 
                 #extracting viewstate
@@ -134,6 +135,7 @@ class DlScrapper:
                     'form_rcdl:tf_dob_input': self.dob,
                     'javax.faces.ViewState': viewstate}
 
+                #making 2nd request
                 result2 = self.session.post('https://parivahan.gov.in' + action, data2, self.my_header)
 
                 #extracting viewstate
@@ -153,7 +155,8 @@ class DlScrapper:
                     'javax.faces.behavior.event': 'blur',
                     'javax.faces.partial.ajax': 'true'}
 
-                result4 = self.session.post('https://parivahan.gov.in' + action, data3, self.my_header)
+                #making 3rd request
+                result3 = self.session.post('https://parivahan.gov.in' + action, data3, self.my_header)
 
                 #data to be passed in forth request
                 data4 = {'javax.faces.partial.ajax': 'true',
@@ -167,6 +170,7 @@ class DlScrapper:
                     'form_rcdl:j_idt32:CaptchaID': capcha,
                     'javax.faces.ViewState': viewstate}
 
+                #making the 4th request
                 result4 = self.session.post('https://parivahan.gov.in' + action, data4, self.my_header)
                 
                 #cheching if the captcha is valid
@@ -185,7 +189,8 @@ class DlScrapper:
                     validity_details_transport_to = xhtml.cssselect('td')[15].text_content()[4:]
                     hazardous_valid_till = xhtml.cssselect('td')[17].text_content()
                     hill_valid_till = xhtml.cssselect('td')[19].text_content()
-                    
+
+                    #this list will contain all the class_of_vehicles related data
                     class_of_vehicle_details_list = []
                     temp_dict = {}
                     c = 0
@@ -216,6 +221,8 @@ class DlScrapper:
                     'class_of_vehicle_details': class_of_vehicle_details_list
 
                     }
+
+                    #returning data in json format
                     return json.dumps(data, indent = 4)
                 
                 else:
